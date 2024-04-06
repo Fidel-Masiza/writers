@@ -11,10 +11,6 @@ function SetPasscodeScreen() {
   const [confirmPin, setConfirmPin] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    checkIfPinExists();
-  }, []);
-
   const checkIfPinExists = async () => {
     try {
       const user = firebase.auth().currentUser;
@@ -30,23 +26,27 @@ function SetPasscodeScreen() {
     }
   };
 
-  const handleSetPasscode = async () => {
-  try {
-    if (pin !== confirmPin) {
-      setErrorMessage('Pins do not match.');
-      return;
-    }
+  useEffect(() => {
+    checkIfPinExists();
+  }, [checkIfPinExists]); // Adding checkIfPinExists to dependency array
 
-    const user = firebase.auth().currentUser;
-    if (user) {
-      await firebase.database().ref(`users/${user.uid}/pin`).set(pin);
-      // Navigate to the random page after setting PIN
-      navigation.navigate('RandomPage');
+  const handleSetPasscode = async () => {
+    try {
+      if (pin !== confirmPin) {
+        setErrorMessage('Pins do not match.');
+        return;
+      }
+
+      const user = firebase.auth().currentUser;
+      if (user) {
+        await firebase.database().ref(`users/${user.uid}/pin`).set(pin);
+        // Navigate to the random page after setting PIN
+        navigation.navigate('RandomPage');
+      }
+    } catch (error) {
+      console.error('Error setting PIN:', error.message);
     }
-  } catch (error) {
-    console.error('Error setting PIN:', error.message);
-  }
-};
+  };
 
   const handleSetTouchID = () => {
     // Code to set touch ID for the user
